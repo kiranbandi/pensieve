@@ -1,0 +1,24 @@
+{
+    "manifest_version": 2,
+
+    "name": "pensieve",
+    "description": "A chrome extension for bookmarking and tracking user activity in Jbrowse",
+    "version": "0.0.1",
+
+    "browser_action": {
+        "default_popup": "popup/popup.html",
+        "default_title": "Pensieve"
+    },
+    "content_scripts": [{
+        "matches": [
+            "<all_urls>"
+        ],
+        "js": ["vendor/jquery.min.js", "content.js"]
+    }],
+    "icons": {
+        "16": "images/favicon.png",
+        "48": "images/favicon.png",
+        "128": "images/favicon.png"
+    },
+    "permissions": []
+}
