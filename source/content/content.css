@@ -1,0 +1,5 @@
+#readwear-content-root {
+    background: red;
+    z-index: 50;
+    cursor: pointer;
+}

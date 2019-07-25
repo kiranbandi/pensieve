@@ -14,11 +14,21 @@
 <body class='with-top-navbar'>
     <!--react root container where content would be loaded-->
     <div id="root">
-        <h2 class='banner'>Hello Stranger</h2>
+        <h2 class='banner'>PENSIEVE</h2>
+        <h2 class='lower-banner'>JBrowse Extension</h2>
+        <label class="checkbox-container">
+            <input type="checkbox" id="datacheck"> 
+            <span class="label-text">Record diagnostic data for research</span>
+        </label>
+        <div class='button-container'>
+            <button class="primary-button" id="start"> Start </button>
+            <button class="primary-button" id="stop"> Stop </button>
+        </div>
         <div class="footer-banner">
             <img src='../images/interaction_lab.gif' />
         </div>
     </div>
     <script src="../vendor/jquery.min.js"></script>
+    <script src="popup.js"></script>
 
 </html>
