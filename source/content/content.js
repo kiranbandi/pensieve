@@ -2,6 +2,11 @@ $(function() {
 
     readWearStore = {};
 
+    var readHistory = {};
+    var currentStore = {};
+    var resetTime = 5000;
+    var markReadWearTimer;
+
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
             if (request.message.indexOf('pensieve') > -1) {
@@ -29,8 +34,7 @@ $(function() {
             if ($("#readwear-content-root").length == 0) {
                 var readwearBox = $("<div/>") // creates a div element
                     .attr("id", "readwear-content-root") // adds the id
-                    .css($(".dragWindow").css(['left', 'top', 'width', 'position']))
-                    .html("<h2>Readwear Content will appear here</h2>");
+                    .css($(".dragWindow").css(['left', 'top', 'width']));
 
                 jbrowseContainer.append(readwearBox);
                 $('#readwear-content-root').mousedown(attachVerticalDrag);
@@ -78,17 +82,138 @@ $(function() {
             .on('mouseup', handle_mouseup)
             .on('mousemove', handle_dragging);
     }
-})
 
 
-window.addEventListener('message', function(event) {
-    var messageData = event.data;
 
-    var location;
-    if (messageData.type && messageData.type == 'window_to_content') {
-        location = messageData.location;
+    window.addEventListener('message', function(event) {
 
-        // window.postMessage({ 'type': 'content_to_window', 'location': location }, '*');
+        var messageData = event.data;
 
+        if (messageData.type) {
+
+            if (messageData.type == 'window_to_content_location') {
+                var location = messageData.location;
+                debugger;
+                // reset read wear tracking with new position by passing width and left position
+                resetReadwearTimer(location.width, location.left, { name: location.ref, start: location.start, end: location.end });
+            }
+
+            if (messageData.type == 'window_to_content_initialize') {
+
+                // reset read history
+                readHistory = {};
+                currentStore = {};
+
+                // get location information
+                var location = messageData.location;
+
+                // populate read history with all the reference sequences the Jbrowse instance has
+                messageData.allRefs.map((refSeqID) => {
+                    readHistory[refSeqID] = Array.apply(null, Array(5)).map(() => ({ 'width': 0, 'left': 0, 'duration': 0, 'ref': {} }))
+                });
+
+
+                // create readwear-blocks on the readwear pane
+                readHistory[location.ref].map(function(readwearBlock, iterator) {
+
+
+                    var readwearMarker = $("<div/>")
+                        .attr("id", "store-" + iterator)
+                        .attr("class", "readwear-block")
+                        .css({
+                            'width': readwearBlock.width + 'px',
+                            'left': readwearBlock.left + 'px',
+                            'top': (((+iterator) * 12) + 2.5) + 'px'
+                        })
+                        .on('click', function() {
+                            var historyTag = readHistory[currentStore.refName][this.id.split("-")[1]];
+                            window.postMessage({ 'type': 'content_to_window', 'ref': historyTag.ref }, '*');
+                        });
+
+
+                    $("#readwear-content-root").append(readwearMarker);
+
+                });
+
+                // Initialize the timer
+                markReadWearTimer = new Timer(() => {
+                    // add a new readwear marker by pushing a clone of the object 
+                    // objects are copied by refernce in javascript :-D
+                    if (currentStore.refName) {
+                        var lastElement = readHistory[currentStore.refName][readHistory[currentStore.refName].length - 1];
+                        if (currentStore.width < 400 && (lastElement.width != currentStore.width || lastElement.left != currentStore.left)) {
+                            // shallow clone again
+                            readHistory[currentStore.refName].push(JSON.parse(JSON.stringify(currentStore)));
+                            //  remove the oldest marker
+                            readHistory[currentStore.refName] = readHistory[currentStore.refName].slice(1, 6);
+                            // trigger change on DOM
+                            updateReadwearBlocks();
+                        }
+                    }
+                    markReadWearTimer.stop();
+                }, resetTime);
+
+                // Start the timer
+                resetReadwearTimer(location.width, location.left, { name: location.ref, start: location.start, end: location.end });
+
+            }
+
+        }
+
+    });
+
+
+    var resetReadwearTimer = function(width, left, ref) {
+
+        // if refname has changed then trigger an update ,
+        // because this means user has switched sequences
+        if (ref.name != currentStore.refName) {
+            currentStore.refName = ref.name;
+            currentStore.width = width;
+            currentStore.left = left;
+            // shallow cloning by value
+            currentStore.ref = JSON.parse(JSON.stringify(ref));
+            updateReadwearBlocks();
+        }
+
+        markReadWearTimer.reset(resetTime);
+        currentStore.width = width;
+        currentStore.left = left;
+        // shallow cloning by value
+        currentStore.ref = JSON.parse(JSON.stringify(ref));
+        currentStore.refName = ref.name;
     }
-});
+
+    var updateReadwearBlocks = function() {
+        document.querySelectorAll('#readwear-content-root .readwear-block').forEach((element, iterator) => {
+            element.style.width = readHistory[currentStore.refName][iterator].width + 'px';
+            element.style.left = readHistory[currentStore.refName][iterator].left + 'px';
+        });
+    }
+
+    //  code sourced from stackoverflow - https://stackoverflow.com/questions/8126466/how-do-i-reset-the-setinterval-timer
+    function Timer(fn, t) {
+        var timerObj = setInterval(fn, t);
+
+        this.stop = function() {
+            if (timerObj) {
+                clearInterval(timerObj);
+                timerObj = null;
+            }
+            return this;
+        }
+
+        // start timer using current settings (if it's not already running)
+        this.start = function() {
+            if (!timerObj) {
+                this.stop();
+                timerObj = setInterval(fn, t);
+            }
+            return this;
+        }
+
+        // start with new interval, stop current interval
+        this.reset = function() { return this.stop().start() };
+    }
+
+})

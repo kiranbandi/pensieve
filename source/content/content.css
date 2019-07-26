@@ -1,5 +1,23 @@
 #readwear-content-root {
-    background: red;
+    background: rgba(173, 196, 226, 0.95);
     z-index: 50;
     cursor: pointer;
+    position: absolute;
+    text-align: right;
+    height: 62px;
+}
+
+#readwear-content-root .readwear-block {
+    position: absolute;
+    height: 7.5px;
+    background: #ff000052;
+    border-radius: 10px;
+    transition: height 0.20s;
+    cursor: pointer;
+}
+
+#readwear-content-root .readwear-block:hover,
+#readwear-content-root .readwear-block:focus {
+    background: red;
+    height: 8.5px;
 }
