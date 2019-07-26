@@ -93,7 +93,6 @@ $(function() {
 
             if (messageData.type == 'window_to_content_location') {
                 var location = messageData.location;
-                debugger;
                 // reset read wear tracking with new position by passing width and left position
                 resetReadwearTimer(location.width, location.left, { name: location.ref, start: location.start, end: location.end });
             }
