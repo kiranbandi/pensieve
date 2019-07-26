@@ -69,13 +69,26 @@ $(function() {
         }
         // remove handlers once the user leaves the mouse
         function handle_mouseup(e) {
-            $('#readwear-content-root')
+            $('body')
                 .off('mousemove', handle_dragging)
                 .off('mouseup', handle_mouseup);
         }
         // attach event handlers when mouse is down
-        $('#readwear-content-root')
+        $('body')
             .on('mouseup', handle_mouseup)
             .on('mousemove', handle_dragging);
     }
 })
+
+
+window.addEventListener('message', function(event) {
+    var messageData = event.data;
+
+    var location;
+    if (messageData.type && messageData.type == 'window_to_content') {
+        location = messageData.location;
+
+        // window.postMessage({ 'type': 'content_to_window', 'location': location }, '*');
+
+    }
+});
