@@ -3,7 +3,7 @@
 
     "name": "pensieve",
     "description": "A chrome extension for bookmarking and tracking user activity in Jbrowse",
-    "version": "0.0.1",
+    "version": "0.0.2",
 
     "browser_action": {
         "default_popup": "popup/popup.html",
@@ -13,7 +13,7 @@
         "matches": [
             "https://synvisio.usask.ca/*", "https://knowpulse.usask.ca/*", "https://jbrowse.org/*"
         ],
-        "js": ["vendor/jquery.min.js", "content/content.js"],
+        "js": ["content/socket-io.js", "vendor/jquery.min.js", "content/content.js"],
         "css": ["content/content.css"]
     }],
     "web_accessible_resources": [

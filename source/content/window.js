@@ -33,4 +33,5 @@ JBrowse.afterMilestone('completely initialized', function() {
     };
 
     window.postMessage({ 'type': 'window_to_content_initialize', 'allRefs': Object.keys(JBrowse.allRefs), 'location': location }, '*');
+
 });

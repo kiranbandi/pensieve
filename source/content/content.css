@@ -1,7 +1,7 @@
 #readwear-content-root {
     background: rgba(173, 196, 226, 0.95);
     z-index: 50;
-    cursor: pointer;
+    cursor: grab;
     position: absolute;
     text-align: right;
     height: 62px;
@@ -12,7 +12,7 @@
     height: 7.5px;
     background: #ff000052;
     border-radius: 10px;
-    transition: height 0.20s;
+    transition: height 0.5s;
     cursor: pointer;
 }
 

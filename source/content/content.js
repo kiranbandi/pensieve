@@ -7,6 +7,10 @@ $(function() {
     var resetTime = 5000;
     var markReadWearTimer;
 
+    // socket instance
+    var socket = false;
+    var socket = io('http://localhost:8080');
+
     chrome.runtime.onMessage.addListener(
         function(request, sender, sendResponse) {
             if (request.message.indexOf('pensieve') > -1) {
@@ -18,6 +22,10 @@ $(function() {
 
     function pensieveRequestHandler(message) {
         if (message.indexOf('start') > -1) {
+            if (message.indexOf('checked') > -1) {
+                // also start tracking user movement and send to the socket
+                socket = io('http://localhost:8080');
+            }
             attachReadwearBox();
         } else if (message.indexOf('stop') > -1) {
             deattachReadwearBox();
@@ -190,29 +198,43 @@ $(function() {
         });
     }
 
-    //  code sourced from stackoverflow - https://stackoverflow.com/questions/8126466/how-do-i-reset-the-setinterval-timer
-    function Timer(fn, t) {
-        var timerObj = setInterval(fn, t);
+    var socketSend = function(tag, data) {
 
-        this.stop = function() {
-            if (timerObj) {
-                clearInterval(timerObj);
-                timerObj = null;
-            }
-            return this;
+        // if the connection is open then send the message if not skip
+        if (socket) {
+
+
         }
+    }
+})
 
-        // start timer using current settings (if it's not already running)
-        this.start = function() {
-            if (!timerObj) {
-                this.stop();
-                timerObj = setInterval(fn, t);
-            }
-            return this;
+
+
+
+
+
+
+//  code sourced from stackoverflow - https://stackoverflow.com/questions/8126466/how-do-i-reset-the-setinterval-timer
+function Timer(fn, t) {
+    var timerObj = setInterval(fn, t);
+
+    this.stop = function() {
+        if (timerObj) {
+            clearInterval(timerObj);
+            timerObj = null;
         }
-
-        // start with new interval, stop current interval
-        this.reset = function() { return this.stop().start() };
+        return this;
     }
 
-})
+    // start timer using current settings (if it's not already running)
+    this.start = function() {
+        if (!timerObj) {
+            this.stop();
+            timerObj = setInterval(fn, t);
+        }
+        return this;
+    }
+
+    // start with new interval, stop current interval
+    this.reset = function() { return this.stop().start() };
+}
